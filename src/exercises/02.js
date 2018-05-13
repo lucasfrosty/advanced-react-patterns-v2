@@ -6,14 +6,14 @@ import {Switch} from '../switch'
 class Toggle extends React.Component {
 
   // these elements will be like:
-  // <Toggle.On>aaaa</Toggle.On>
-  // <Toggle.Off>aaaa</Toggle.Off>
+  // <Toggle.On>I'm on</Toggle.On>
+  // <Toggle.Off>I'm off</Toggle.Off>
   // <Toggle.Button />
   // but we need to provide the "on" and "toggle" variable for them
   // and how we do this is via props
   static On = ({children, on}) => on && <div>{children}</div>;
   static Off = ({children, on}) => !on && <div>{children}</div>;
-  static Button = ({ on, toggle }) => <Switch on={on} onClick={toggle} />
+  static Button = ({ on, toggle, ...props }) =>  <Switch on={on} onClick={toggle} {...props} />
 
   state = {on: false}
   toggle = () =>

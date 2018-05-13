@@ -11,8 +11,7 @@ import {Switch} from '../switch'
 // The way we do this is through context. React.createContext is the API we
 // want. Here's a simple example of that API:
 //
-// const defaultValue = 'light'
-// const ThemeContext = React.createContext(defaultValue)
+// const ThemeContext = React.createContext('light')
 //   Note: The `defaultValue` can be an object, function, or anything.
 //   It's simply what React will use if the ThemeContext.Consumer is rendered
 //   outside a ThemeContext.Provider
@@ -40,35 +39,52 @@ import {Switch} from '../switch'
 //   (newlines are ok, like in the above example)
 
 // 🐨 create a ToggleContext with React.createContext here
+const ToggleContext = React.createContext('light');
+
+function ToggleConsumer ({ children }) {
+  return (
+    <ToggleContext.Consumer>
+      {contextValue => {
+        if(!contextValue) {
+          throw new Error('Use the components inside the Toggle component');
+        }
+
+        return children(contextValue);
+      }}
+    </ToggleContext.Consumer>
+  )
+} 
 
 class Toggle extends React.Component {
-  // 🐨 each of these compound components will need to be changed to use
-  // ToggleContext.Consumer and rather than getting `on` and `toggle`
-  // from props, it'll get it from the ToggleContext.Consumer value.
-  static On = ({on, children}) => (on ? children : null)
-  static Off = ({on, children}) => (on ? null : children)
-  static Button = ({on, toggle, ...props}) => (
-    <Switch on={on} onClick={toggle} {...props} />
-  )
-  state = {on: false}
+  static On = ({ children }) => (
+    <ToggleConsumer>
+      {({ on }) => on && children}
+    </ToggleConsumer>
+  );
+
+  static Off = ({ children }) => (
+    <ToggleConsumer>
+      {({ on }) => !on && children}
+    </ToggleConsumer>
+  );
+
+  static Button = (props) => (
+    <ToggleConsumer>
+      {({ on, toggle }) => (
+        <Switch on={on} onClick={toggle} {...props} />
+      )}
+    </ToggleConsumer>
+  );
   toggle = () =>
     this.setState(
       ({on}) => ({on: !on}),
       () => this.props.onToggle(this.state.on),
     )
+  state = { on: false, toggle: this.toggle }
   render() {
-    // Because this.props.children is _immediate_ children only, we need
-    // to 🐨 remove this map function and render our context provider with
-    // this.props.children as the children of the provider. Then we'll
-    // expose the `on` state and `toggle` method as properties in the context
-    // value (the value prop).
-
-    return React.Children.map(this.props.children, child =>
-      React.cloneElement(child, {
-        on: this.state.on,
-        toggle: this.toggle,
-      }),
-    )
+    return (
+      <ToggleContext.Provider value={this.state} {...this.props} />
+    );
   }
 }
 
