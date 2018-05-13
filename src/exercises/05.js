@@ -13,16 +13,10 @@ class Toggle extends React.Component {
   getStateAndHelpers() {
     return {
       on: this.state.on,
-      toggle: this.toggle,
-      // In our last usage example, you'll notice that we had some
-      // common props (`onClick`, and we're also missing `aria-pressed`
-      // value on the `button`). Because most users will want these
-      // props applied to the button they render, we can add a collection
-      // of props as a convenience for them.
-      //
-      // 🐨 Add a `togglerProps` object that has an `aria-pressed` (should
-      // be set to the value of the `on` state), and an `onClick` assigned
-      // to the toggle function.
+      togglerProps: {
+        onClick: this.toggle,
+        'aria-pressed': this.state.on,
+      },
     }
   }
   render() {
